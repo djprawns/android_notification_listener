@@ -2,8 +2,10 @@ package com.pkmnapps.android_notification_listener;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.support.v4.app.NotificationCompat;
 import android.util.ArrayMap;
 
 import java.util.ArrayList;
@@ -31,6 +33,20 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (channel != null) {
+            Notification notification = sbn.getNotification();
+//            System.out.println(notification.toString());
+            if (notification.extras.containsKey(NotificationCompat.EXTRA_MEDIA_SESSION)) {
+                Bundle extras = NotificationCompat.getExtras(notification);
+                System.out.println(extras.toString());
+
+                for(String key : extras.keySet()) {
+                    Object obj = extras.get(key);   //later parse it as per your required type
+                    System.out.println(key + " : " + String.valueOf(obj));
+                    if (key.equals("android.title")) {
+                        System.out.println(key + " : " + String.valueOf(obj));
+                    }
+                }
+            }
             List<String> obj = new ArrayList<>();
 
             obj.add(sbn.getPackageName());
