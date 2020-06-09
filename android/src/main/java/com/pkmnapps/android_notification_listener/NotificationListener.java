@@ -31,6 +31,7 @@ import java.util.Map;
 
 import data.BundleData;
 import data.Request;
+import data.Scrobble;
 import io.flutter.plugin.common.MethodChannel;
 
 @SuppressLint({"NewApi", "Registered"})
@@ -95,14 +96,15 @@ public class NotificationListener extends NotificationListenerService {
                     System.out.println("Scrobbling");
                     System.out.println("Title - " + title + " Album - " + subtitle + " App - " + appName);
 //                    System.out.println(extras.toString());
-//                    Scrobble scrobble = new Scrobble();
-//                    scrobble.title = title;
-//                    scrobble.album = subtitle;
+                    Scrobble scrobble = new Scrobble();
+                    scrobble.title = title;
+                    scrobble.album = subtitle;
 //                    scrobble.appName = appName;
-//                    scrobble.appName = appName;
+                    scrobble.app = appName.toUpperCase();
+                    scrobble.platform = "ANDROID";
 //                    Request requestPayload = new Request();
 //                    requestPayload.request_payload = scrobble;
-//                    scrobble(requestPayload);
+                    scrobble(scrobble);
                 }
             }
 
@@ -146,33 +148,37 @@ public class NotificationListener extends NotificationListenerService {
         return bundleData;
     }
 
-    public void scrobble(Request request) {
+    public void scrobble(Scrobble request) {
 
         Response.ErrorListener errorListener = new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (error instanceof NetworkError) {
-                    Toast.makeText(getApplicationContext(), "No network available", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
-                }
+                System.out.println("here");
+                System.out.println(error.toString());
+//                if (error instanceof NetworkError) {
+//                    System.out.println("here");
+//                    System.out.println(error.toString());
+//                } else {
+//                    System.out.println(error.toString());
+//                }
             }
         };
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://192.168.2.244/api/scrobble/";
+        String url ="http://192.168.43.62:8081/metadata_ms/scrobble";
         Gson gson = new Gson();
         String json = gson.toJson(request);
         JSONObject jsonObject;
+        System.out.println("Making Request");
         try {
             jsonObject = new JSONObject(json);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url, jsonObject, new Response.Listener<JSONObject>() {
 
                 @Override
                 public void onResponse(JSONObject response) {
-                    VolleyLog.wtf(response.toString(), "utf-8");
-                    System.out.println(response.toString());
+//                    VolleyLog.wtf(response.toString(), "utf-8");
+                    System.out.println("Made Request");
 //                    Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                 }
             }, errorListener) {
@@ -193,6 +199,7 @@ public class NotificationListener extends NotificationListenerService {
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(jsonObjectRequest);
         } catch (JSONException err) {
+            System.out.println("Error in Request");
             Log.d("Error", err.toString());
         }
 
